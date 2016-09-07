@@ -339,8 +339,8 @@ for(i in 1:5)
     {
       r[j,i] <- risk(coxmod[[i]],test[j,],test.period)
     }
-    mypath <- file.path("C:","Users","te282346","Desktop","celtic","CelticData29AUG16", paste("SurvPlot_",i,"_Period=",test.period, "_", Sys.time(),".jpg", sep = ""))
-    jpeg(file=mypath)
+    mypath <- file.path("C:","Users","te282346","Desktop","celtic","CelticData29AUG16", paste("SurvPlot_",i,"_Period=",test.period,"_",format(Sys.time(), "%a%b%d%Y%H:%M:%S"),".jpeg", sep = ""))
+    jpeg(file=sprintf(mypath))
     ggsurv(survfit(coxmod[[i]]))
     dev.off()
   }
@@ -351,7 +351,7 @@ for(i in 1:5)
   }
 
 ##Export the findings
-filename <- paste("Risk_Prediction_for_Time=",test.period,"_Weeks_",Sys.time())
+filename <- paste("Risk_Prediction_for_Time=",test.period,"_Weeks_",format(Sys.time(), "%a%b%d%Y%H:%M:%S"))
 write.csv(test[,c(1:3,206,207)],file=filename,row.names = FALSE)
 
 
