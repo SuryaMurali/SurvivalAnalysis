@@ -341,8 +341,7 @@ for(i in 1:5)
     }
     mypath <- file.path("C:","Users","te282346","Desktop","celtic","CelticData29AUG16", paste("SurvPlot ",i," Period= ",time.period, " ", Sys.time(),".jpg", sep = ""))
     jpg(file=mypath)
-    mytitle = paste("my title is", names[i])
-    plot(x,y, main = mytitle)
+    ggsurv(survfit(coxmod[[i]], data = train1))
     dev.off()
   }
   test[,206] <- apply(r[,1:5],1,function (x) mean(x,na.rm=T))
