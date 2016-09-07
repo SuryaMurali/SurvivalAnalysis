@@ -10,7 +10,7 @@ library(MASS)
 library(pec)
 library(quantreg)
 library(autopls)
-
+library(jpeg)
 
 ##IMPORT DATA. BEFORE THIS, SET WD TO THE LOCATION WHERE FILES ARE STORED
 data<-read.csv("CelticData29AUG16.csv",header=T,sep=",",na.strings=c(""," ","NA"))
@@ -334,14 +334,14 @@ for(i in 1:5)
     cols <- names(step$assign)
     my.formula <- as.formula(paste( "Surv(start,stop,outcome)", '~', paste( cols, collapse=' + ' ) ))
     coxmod[[i]] <- coxph(my.formula,data=na.omit(train1))
-    ggsurv(survfit(coxmod[[i]], data = train1))
+    ggsurv(survfit(coxmod[[i]]))
     for (j in 1:nrow(test))
     {
       r[j,i] <- risk(coxmod[[i]],test[j,],test.period)
     }
-    mypath <- file.path("C:","Users","te282346","Desktop","celtic","CelticData29AUG16", paste("SurvPlot ",i," Period= ",time.period, " ", Sys.time(),".jpg", sep = ""))
-    jpg(file=mypath)
-    ggsurv(survfit(coxmod[[i]], data = train1))
+    mypath <- file.path("C:","Users","te282346","Desktop","celtic","CelticData29AUG16", paste("SurvPlot_",i,"_Period=",test.period, "_", Sys.time(),".jpg", sep = ""))
+    jpeg(file=mypath)
+    ggsurv(survfit(coxmod[[i]]))
     dev.off()
   }
   test[,206] <- apply(r[,1:5],1,function (x) mean(x,na.rm=T))
@@ -351,7 +351,7 @@ for(i in 1:5)
   }
 
 ##Export the findings
-filename <- paste("Risk Prediction for Time = ",time.period," Weeks ",Sys.time())
+filename <- paste("Risk_Prediction_for_Time=",test.period,"_Weeks_",Sys.time())
 write.csv(test[,c(1:3,206,207)],file=filename,row.names = FALSE)
 
 
