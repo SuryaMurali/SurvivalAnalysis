@@ -319,32 +319,38 @@ test$risk = NULL
 test$outcome.prob = NULL
 
 ##TEST PERIOD IN WEEKS
-test.period = 1
+test.period = 4
 set.seed(0827)
 r <- matrix(rep(0),nrow(test),5)
 train1<- trainF
 coxmod <- vector("list",5)
 c <- (split(c(5:119),sample(c(5:119),size=5,replace=FALSE)))
+##DEVELOP A MODEL
 for(i in 1:5)
+{
+  cols <- c("age",colnames(train1[unlist(c[i])]))
+  my.formula <- as.formula(paste( "Surv(start,stop,outcome)", '~', paste( cols, collapse=' + ' ) ))
+  coxmod[[i]] <- coxph(my.formula,data=na.omit(train1))
+  step <- step(coxmod[[i]],direction="backward",trace=F)
+  cols <- names(step$assign)
+  my.formula <- as.formula(paste( "Surv(start,stop,outcome)", '~', paste( cols, collapse=' + ' ) ))
+  coxmod[[i]] <- coxph(my.formula,data=na.omit(train1))
+  ggsurv(survfit(coxmod[[i]]),main=paste(paste("Survival Curve - Model : Surv ~ "), paste(cols, collapse=' + ' ),sep='\n' ))
+}
+
+##PREDICICTIONS
+for (i in 1:5)
+{
+  for (j in 1:nrow(test))
   {
-    cols <- c("age",colnames(train1[unlist(c[i])]))
-    my.formula <- as.formula(paste( "Surv(start,stop,outcome)", '~', paste( cols, collapse=' + ' ) ))
-    coxmod[[i]] <- coxph(my.formula,data=na.omit(train1))
-    step <- step(coxmod[[i]],direction="backward",trace=F)
-    cols <- names(step$assign)
-    my.formula <- as.formula(paste( "Surv(start,stop,outcome)", '~', paste( cols, collapse=' + ' ) ))
-    coxmod[[i]] <- coxph(my.formula,data=na.omit(train1))
-    ggsurv(survfit(coxmod[[i]]),main=paste(paste("Survival Curve - Model : Surv ~ "), paste(cols, collapse=' + ' ),sep='\n' ))
-    for (j in 1:nrow(test))
-    {
-      r[j,i] <- risk(coxmod[[i]],test[j,],test.period)
-    }
+    r[j,i] <- risk(coxmod[[i]],test[j,],test.period)
   }
-    test[,206] <- apply(r[,1:5],1,function (x) mean(x,na.rm=T))
-    for (k in 1:nrow(test))
-    {
-      ifelse(test[k,206]>=0.5,test[k,207]<-"HIGH RISK",ifelse(test[k,206]>=0.25,test[k,207]<-"MEDIUM RISK",test[k,207]<-"LOW RISK"),sep="")    
-    }
+}
+test[,206] <- apply(r[,1:5],1,function (x) mean(x,na.rm=T))
+for (k in 1:nrow(test))
+{
+  ifelse(test[k,206]>=0.5,test[k,207]<-"HIGH RISK",ifelse(test[k,206]>=0.25,test[k,207]<-"MEDIUM RISK",test[k,207]<-"LOW RISK"))    
+}
     
 ##Export the findings to the WD
 filename <- paste("./Risk_Prediction_for_Time=",test.period,"_Weeks_",format(Sys.time(), "%a%b%d%Y%H-%M-%S"),".csv",sep = "")
