@@ -351,7 +351,7 @@ for(i in 1:5)
   }
 
 ##Export the findings
-filename <- paste("Risk_Prediction_for_Time=",test.period,"_Weeks_",format(Sys.time(), "%a%b%d%Y%H:%M:%S"))
+filename <- paste("Risk_Prediction_for_Time=",test.period,"_Weeks_",format(Sys.time(), "%a%b%d%Y%H:%M:%S"),sep="")
 write.csv(test[,c(1:3,206,207)],file=filename,row.names = FALSE)
 
 
